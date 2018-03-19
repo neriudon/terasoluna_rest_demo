@@ -2,4 +2,5 @@
 TERASOLUNA Server Framework for Java (5.3.1) Todo Rest Tutorial with MyBatis3
 
 See official page
-[10.2. Tutorial (Todo Application REST)](http://terasolunaorg.github.io/guideline/5.3.1.RELEASE/en/Tutorial/TutorialREST.html)
+[11.2. Tutorial (Todo Application REST)](http://terasolunaorg.github.io/guideline/5.4.1.RELEASE/ja/Tutorial/TutorialREST.html)
+**Now only Japanese page is aviable.**
