@@ -1,7 +1,7 @@
 package todo.api;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.log;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.terasoluna.gfw.web.logging.mdc.XTrackMDCPutFilter;
 import todo.api.todo.TodoResource;
 
 @RunWith(SpringRunner.class)
@@ -38,26 +39,27 @@ public class TodoRestControllerTest {
 
   @Before
   public void setup() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).alwaysDo(log()).build();
+    mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        .addFilter(new XTrackMDCPutFilter(), "/**").alwaysDo(log()).build();
     mapper = new ObjectMapper();
   }
 
   @Test
   public void postTodoTest() throws Exception {
+    String title = "title";
     TodoResource todoRequest = new TodoResource();
-    todoRequest.setTodoTitle("title");
-    MvcResult result =
-        mockMvc
-            .perform(MockMvcRequestBuilders.post("/api/v1/todos")
-                .content(mapper.writeValueAsString(todoRequest))
+    todoRequest.setTodoTitle(title);
+    MvcResult result = mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/todos").content(mapper.writeValueAsString(todoRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isCreated()).andReturn();
+        .andExpect(status().isCreated()).andReturn();
 
     TodoResource todoResponce =
         mapper.readValue(result.getResponse().getContentAsString(), TodoResource.class);
-    assertThat(null, not(todoResponce.getTodoId()));
-    assertThat("title", equalTo(todoResponce.getTodoTitle()));
-    assertThat(false, equalTo(todoResponce.isFinished()));
-    assertThat(null, not(todoResponce.getCreatedAt()));
+    assertThat(todoResponce.getTodoId(), notNullValue());
+    assertThat(todoResponce.getTodoTitle(), equalTo(title));
+    assertThat(todoResponce.isFinished(), equalTo(false));
+    assertThat(todoResponce.getCreatedAt(), notNullValue());
   }
 }
